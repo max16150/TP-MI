@@ -1,0 +1,212 @@
+import javax.swing.*;
+
+public class Dialog{
+	int aV;
+	int bV;
+	float cV;
+
+	Dialog(String a, String b){
+		this(a,b,"");
+	}
+
+	Dialog(String a, String b, String c){
+		JTextField xField = new JTextField(5);
+      	JTextField yField = new JTextField(5);
+      	JTextField zField = new JTextField(5);
+
+      	JPanel panel = new JPanel();
+      	panel.add(new JLabel("Sommet initial :"));
+      	panel.add(xField);
+      	panel.add(Box.createHorizontalStrut(15));
+      	panel.add(new JLabel("Sommet final :"));
+      	panel.add(yField);
+
+      	if (!c.equals("")) {
+      		panel.add(Box.createHorizontalStrut(15));
+      		panel.add(new JLabel("Cout de l'arête :"));
+      		panel.add(zField);
+      	}
+      	
+      	int result = JOptionPane.showConfirmDialog(
+      		null, 
+      		panel, 
+            "Nouvelle arette", 
+            JOptionPane.OK_OPTION);
+
+      	if (result == JOptionPane.OK_OPTION) {
+      		try {
+				aV = Integer.parseInt(xField.getText());
+				bV = Integer.parseInt(yField.getText());
+				cV = Float.parseFloat(zField.getText());
+  			}catch(NumberFormatException e) {
+
+  			}
+      	}
+	}
+
+	public int getA(){
+		return this.aV;
+	}
+
+	public int getB(){
+		return this.bV;
+	}
+
+	public float getC(){
+		return this.cV;
+	}
+      
+}
+
+public class Arete{
+	private int initial;
+	private int finale;
+	private float cout;
+
+	public Arete(int i, int f, float c){
+		this.initial = i;
+		this.finale = f;
+		this.cout = c;
+	}
+
+	public int getInitial(){
+		return this.initial;
+	}
+
+	public int getFinale(){
+		return this.finale;
+	}
+
+	public float getCout(){
+		return this.cout;
+	}
+
+	public void setInitial(int i){
+		this.initial = i;
+	}
+
+	public void setFinale(int f){
+		this.finale = f;
+	}
+
+	public void setCout(float c){
+		this.cout = c;
+	}
+}
+
+public class Graphe{
+	private int n;
+	private int nbAretes;
+	private Arete[] lesAretes;
+
+	public Graphe(int nbs, int nba, Arete[] aretes){
+		this.n = nbs;
+		this.nbAretes = nba;
+		this.lesAretes = new Arete[nba];
+		for (int i =0; i<nba; i++) {
+			this.lesAretes[i] = aretes[i];
+		}
+	}
+
+	public Graphe(Graphe g){
+		this.n = g.getNbSommets();
+		this.nbAretes = g.getNbAretes();
+		this.lesAretes = new Arete[this.nbAretes];
+		for (int i=0; i<this.nbAretes; i++) {
+			this.lesAretes[i] = g.getArete(i);
+		}
+	}
+
+	public int getNbSommets(){
+		return this.n;
+	}
+
+	public int getNbAretes(){
+		return this.nbAretes;
+	}
+
+	public Arete[] getTableAretes(){
+		return this.lesAretes;
+	}
+
+	public Arete getArete(int n){
+		return this.lesAretes[n];
+	}
+
+	public void setNbSommets(int n){
+		this.n = n;
+	}
+
+	public void setNbAretes(int n){
+		this.nbAretes = n;
+	}
+
+	public void setTableAretes(Arete[] a){
+		this.lesAretes = a;
+	}
+}
+
+public Graphe saisie_graphe(){
+	Dialog dial = new Dialog("Nombre de sommets du graphe :", "Nombre d'arêtes du graphe :");
+
+
+	int nbs = dial.getA();
+	int nba = dial.getB();
+	Arete table[] = new Arete[nba];
+
+	for (int i=0; i<nba; i++) {
+		Dialog fen = new Dialog("Sommet Initial :", "Sommet Final :", "Cout :");
+		int initial = fen.getA();
+		int finale = fen.getB();
+		float cout = fen.getC();
+
+		table[i] = new Arete(initial, finale, cout);  // YAURA PTET UN PROBLEME LA
+	}
+
+	return new Graphe(nbs, nba, table);
+}
+
+public int[][] adjacence(Graphe g){
+	int taille = g.getNbSommets();
+	int table[][] = new int[taille][taille];
+
+	for (int i =0; i<taille; i++) {
+		for (int j=0; j<taille; j++) {
+			table[i][j] = 0;
+		}
+	}
+
+	for (int i=0; i<g.getNbAretes(); i++) {
+		table[g.getArete(i).getInitial()][g.getArete(i).getFinale()] = 1;
+	}
+
+	return table;
+}
+
+public void afficher_matrice(int[][] tableau){
+
+	System.out.print("   ");
+
+    for (int j = 0;j < tableau[0].length;j++) {
+        System.out.print(j +" ");
+    }
+
+	System.out.println();
+
+	for (int i = 0;i < tableau.length; i++) {
+		System.out.print(i + " :");
+        for (int j = 0;j < tableau[i].length;j++) {
+            tableau[i][j] = i + j;
+            System.out.print(tableau[i][j] + " ");
+        }
+        System.out.println();
+	}
+}
+
+public void setup(){ // --------------------------------------------------------------------------
+
+	Graphe graphe = saisie_graphe();
+	afficher_matrice(adjacence(graphe));
+
+
+} //----------------------------------------------------------------------------------------------
