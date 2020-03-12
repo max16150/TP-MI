@@ -5,32 +5,32 @@ public class Dialog{
 	int bV;
 	float cV;
 
-	Dialog(String a, String b){
-		this(a,b,"");
+	Dialog(String title, String a, String b){
+		this(title, a, b, "");
 	}
 
-	Dialog(String a, String b, String c){
+	Dialog(String title, String a, String b, String c){
 		JTextField xField = new JTextField(5);
       	JTextField yField = new JTextField(5);
       	JTextField zField = new JTextField(5);
 
       	JPanel panel = new JPanel();
-      	panel.add(new JLabel("Sommet initial :"));
+      	panel.add(new JLabel(a));
       	panel.add(xField);
       	panel.add(Box.createHorizontalStrut(15));
-      	panel.add(new JLabel("Sommet final :"));
+      	panel.add(new JLabel(b));
       	panel.add(yField);
 
       	if (!c.equals("")) {
       		panel.add(Box.createHorizontalStrut(15));
-      		panel.add(new JLabel("Cout de l'arête :"));
+      		panel.add(new JLabel(c));
       		panel.add(zField);
       	}
       	
       	int result = JOptionPane.showConfirmDialog(
       		null, 
       		panel, 
-            "Nouvelle arette", 
+            title, 
             JOptionPane.OK_OPTION);
 
       	if (result == JOptionPane.OK_OPTION) {
@@ -147,7 +147,7 @@ public class Graphe{
 }
 
 public Graphe saisie_graphe(){
-	Dialog dial = new Dialog("Nombre de sommets du graphe :", "Nombre d'arêtes du graphe :");
+	Dialog dial = new Dialog("Nouveau Graphe", "Nombre de sommets du graphe :", "Nombre d'arêtes du graphe :");
 
 
 	int nbs = dial.getA();
@@ -155,7 +155,7 @@ public Graphe saisie_graphe(){
 	Arete table[] = new Arete[nba];
 
 	for (int i=0; i<nba; i++) {
-		Dialog fen = new Dialog("Sommet Initial :", "Sommet Final :", "Cout :");
+		Dialog fen = new Dialog("Nouvelle arête","Sommet Initial :", "Sommet Final :", "Cout :");
 		int initial = fen.getA();
 		int finale = fen.getB();
 		float cout = fen.getC();
@@ -196,7 +196,6 @@ public void afficher_matrice(int[][] tableau){
 	for (int i = 0;i < tableau.length; i++) {
 		System.out.print(i + " :");
         for (int j = 0;j < tableau[i].length;j++) {
-            tableau[i][j] = i + j;
             System.out.print(tableau[i][j] + " ");
         }
         System.out.println();
