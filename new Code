@@ -1,0 +1,403 @@
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
+import javax.swing.JButton;
+import javax.swing.JToggleButton;
+import java.awt.Color;
+import javax.swing.JTabbedPane;
+
+public class Dialog{
+	int aV;
+	int bV;
+	float cV;
+
+	Dialog(String title, String a, String b){
+		this(title, a, b, "");
+	}
+
+	Dialog(String title, String a, String b, String c){
+		JTextField xField = new JTextField(5);
+      	JTextField yField = new JTextField(5);
+      	JTextField zField = new JTextField(5);
+
+      	JPanel panel = new JPanel();
+      	panel.add(new JLabel(a));
+      	panel.add(xField);
+      	panel.add(Box.createHorizontalStrut(15));
+      	panel.add(new JLabel(b));
+      	panel.add(yField);
+
+      	if (!c.equals("")) {
+      		panel.add(Box.createHorizontalStrut(15));
+      		panel.add(new JLabel(c));
+      		panel.add(zField);
+      	}
+      	
+      	int result = JOptionPane.showConfirmDialog(
+      		null, 
+      		panel, 
+            title, 
+            JOptionPane.OK_OPTION);
+
+      	if (result == JOptionPane.OK_OPTION) {
+      		try {
+				aV = Integer.parseInt(xField.getText());
+				bV = Integer.parseInt(yField.getText());
+				cV = Float.parseFloat(zField.getText());
+  			}catch(NumberFormatException e) {
+
+  			}
+      	}
+	}
+
+	public int getA(){
+		return this.aV;
+	}
+
+	public int getB(){
+		return this.bV;
+	}
+
+	public float getC(){
+		return this.cV;
+	}
+      
+}
+
+class Liste<T>{
+	private T value;
+	private Liste<T> nextList;
+
+	public Liste(){
+
+	}
+
+	private Liste(T value){
+		this.value = value;
+	}
+
+	private Liste<T> getNext(){
+		return this.nextList;
+	}
+
+	private Liste<T> getLast(){
+		Liste<T> occurence = this;
+		for (int i = 0; occurence.getNext() != null; i++) {
+			occurence = occurence.getNext();
+		}
+		return occurence;
+	}
+
+	private Liste<T> getOccurency(int index){
+		Liste<T> occurence = this;
+		for (int i = 0; i<index ; i++) {
+			occurence = occurence.getNext();
+		}
+		return occurence;
+	}
+
+	public void add(T value){
+		Liste<T> instance = this;
+		if (instance.value == null) {
+			instance.value = value;
+		} else {
+			instance = instance.getLast();
+			instance.nextList = new Liste(value);
+		}
+	}
+
+	public void remove(int index){
+		if (index == 0) {
+			this.value = this.getNext().value;
+			this.nextList = this.getNext().nextList;
+			return;
+		}
+		Liste<T> occurencyBefore = this.getOccurency(index-1);
+		Liste<T> occurencyAfter = this.getOccurency(index+1);
+		occurencyBefore.nextList = occurencyAfter;
+	}
+
+	public void put(T value, int index){
+		Liste<T> toPutList = new Liste(value);
+		if (index == 0) {
+			toPutList.nextList = this;
+			this.value = toPutList.value;
+			this.nextList = toPutList.nextList;
+			return;
+		}
+		Liste<T> occurencyBefore = this.getOccurency(index-1);
+		Liste<T> occurencyAfter = this.getOccurency(index+1);
+		occurencyBefore.nextList = occurencyAfter;
+	}
+
+	public int size(){
+		int i = 0;
+		Liste<T> occurence = this;
+		for (i = 0; occurence != null && occurence.value != null; i++) {
+			occurence = occurence.getNext();
+		}
+		return i;
+	}
+
+	public void show(){
+		Liste<T> occurence = this;
+		for (int i = 0; i<this.size(); i++) {
+			System.out.println(occurence.value);
+			occurence = occurence.getNext();
+		}
+	}
+
+	public T get(int index){
+		Liste<T> occurence = this;
+		T value;
+		for (int i = 0; i<index; i++) {
+			occurence = occurence.getNext();
+			if (i+1 == index) {
+				return occurence.value;
+			}
+		}
+		return occurence.value;
+	}
+}
+
+public class Arete{
+	private int initial;
+	private int finale;
+	private float cout;
+
+	public Arete(int i, int f, float c){
+		this.initial = i;
+		this.finale = f;
+		this.cout = c;
+	}
+
+	public int getInitial(){
+		return this.initial;
+	}
+
+	public int getFinale(){
+		return this.finale;
+	}
+
+	public float getCout(){
+		return this.cout;
+	}
+
+	public void setInitial(int i){
+		this.initial = i;
+	}
+
+	public void setFinale(int f){
+		this.finale = f;
+	}
+
+	public void setCout(float c){
+		this.cout = c;
+	}
+}
+
+public class Graphe{
+	private int n;
+	private int nbAretes;
+	private Arete[] lesAretes;
+	private Liste<Arete> lesAretes
+
+	public Graphe(int nbs, int nba, Arete[] aretes){
+		this.n = nbs;
+		this.nbAretes = nba;
+		this.lesAretes = new Arete[nba];
+		for (int i =0; i<nba; i++) {
+			this.lesAretes[i] = aretes[i];
+		}
+	}
+
+	public Graphe(Graphe g){
+		this.n = g.getNbSommets();
+		this.nbAretes = g.getNbAretes();
+		this.lesAretes = new Arete[this.nbAretes];
+		for (int i=0; i<this.nbAretes; i++) {
+			this.lesAretes[i] = g.getArete(i);
+		}
+	}
+
+	public int getNbSommets(){
+		return this.n;
+	}
+
+	public int getNbAretes(){
+		return this.nbAretes;
+	}
+
+	public Arete[] getTableAretes(){
+		return this.lesAretes;
+	}
+
+	public Arete getArete(int n){
+		return this.lesAretes[n];
+	}
+
+	public void setNbSommets(int n){
+		this.n = n;
+	}
+
+	public void setNbAretes(int n){
+		this.nbAretes = n;
+	}
+
+	public void setTableAretes(Arete[] a){
+		this.lesAretes = a;
+	}
+}
+
+public Graphe saisie_graphe(){
+	Dialog dial = new Dialog("Nouveau Graphe", "Nombre de sommets du graphe :", "Nombre d'arêtes du graphe :");
+
+
+	int nbs = dial.getA();
+	int nba = dial.getB();
+	Arete table[] = new Arete[nba];
+
+	for (int i=0; i<nba; i++) {
+		Dialog fen = new Dialog("Nouvelle arête","Sommet Initial :", "Sommet Final :", "Cout :");
+		int initial = fen.getA();
+		int finale = fen.getB();
+		float cout = fen.getC();
+
+		table[i] = new Arete(initial, finale, cout);  // YAURA PTET UN PROBLEME LA
+	}
+
+	return new Graphe(nbs, nba, table);
+}
+
+public int[][] adjacence(Graphe g){
+	int taille = g.getNbSommets();
+	int table[][] = new int[taille][taille];
+
+	for (int i =0; i<taille; i++) {
+		for (int j=0; j<taille; j++) {
+			table[i][j] = 0;
+		}
+	}
+
+	for (int i=0; i<g.getNbAretes(); i++) {
+		table[g.getArete(i).getInitial()][g.getArete(i).getFinale()] = 1;
+	}
+
+	return table;
+}
+
+public void afficher_matrice(int[][] tableau){
+
+	System.out.print("   ");
+
+    for (int j = 0;j < tableau[0].length;j++) {
+        System.out.print(j +" ");
+    }
+
+	System.out.println();
+
+	for (int i = 0;i < tableau.length; i++) {
+		System.out.print(i + " :");
+        for (int j = 0;j < tableau[i].length;j++) {
+            System.out.print(tableau[j][i] + " ");
+        }
+        System.out.println();
+	}
+}
+
+Frame box;
+JFrame frame;
+
+void setup() {
+  size(900, 400);
+  surface.setResizable(true);
+  frame = (JFrame) ((processing.awt.PSurfaceAWT.SmoothCanvas)this.getSurface().getNative()).getFrame();
+  buildFrame();
+
+  Graphe graphe = saisie_graphe();
+  //afficher_matrice(adjacence(graphe));
+  
+}
+
+void buildFrame() {
+  box = new Frame(this, "Media");
+}
+
+
+public class Frame extends JFrame implements ActionListener {
+
+  JMenuItem new_file;
+  JMenuItem action_exit;
+  JMenuItem action_new_top;
+  JMenuItem action_new_side;
+
+  JPanel panel;
+
+  public Frame(PApplet app, String name) {
+
+    frame.setTitle(name);
+
+    panel =  new JPanel(); 
+    panel.setOpaque(false);
+
+    // ADDING PANEL WITH BUTTON
+
+    JButton exit = new JButton("Exit");
+    exit.setBounds(300, 300, 300, 300);  
+    exit.addActionListener(this);
+    panel.add(exit);
+
+    // Creates a menubar for a JFrame
+    JMenuBar menu_bar = new JMenuBar();
+    // Add the menubar to the frame
+    frame.setJMenuBar(menu_bar);
+    // Define and add two drop down menu to the menubar
+    JMenu menu = new JMenu("Menu");
+    menu_bar.add(menu);
+
+    JMenu submenu = new JMenu("Calculer");
+
+    JMenuItem test = new JMenuItem("PVNRT");
+
+    test.addActionListener(this);
+    submenu.add(test);
+
+    
+
+    // Create and add simple menu item to one of the drop down menu
+    action_new_top = new JMenuItem("Ajouter Sommet");
+    action_new_side = new JMenuItem("Ajouter Arête");
+    action_exit = new JMenuItem("Exit");
+
+    action_new_top.addActionListener(this);
+    action_new_side.addActionListener(this);
+    action_exit.addActionListener(this);
+
+    menu.add(action_new_top);
+    menu.add(action_new_side);
+    menu.addSeparator();
+    menu.add(submenu);
+    menu.addSeparator();
+    menu.add(action_exit);
+
+    frame.setVisible(true);
+  }
+
+  public void actionPerformed(ActionEvent e) { 
+
+    String str = e.getActionCommand(); 
+
+    Object source = e.getSource();
+    if (source == action_new_top) {
+      println("Ajouter un nouveau sommet");
+    } else if (source == action_exit) {
+      exit();
+    }
+  }
+}
