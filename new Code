@@ -1,3 +1,5 @@
+long startMemoryUsed=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,6 +15,8 @@ import javax.swing.JToggleButton;
 import java.awt.Color;
 import javax.swing.JTabbedPane;
 import javax.swing.BoxLayout;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class Dialog<A, B, C>{
 	Class<A> aType;
@@ -291,9 +295,7 @@ public class Arete{
 			fill(255);
 			arrowHead(sommetinitial.getX() + 5, sommetinitial.getY() + 15, sommetinitial.getX()+ 1, sommetinitial.getY() + 7);
 		}
-
 		noStroke();
-
 	}
 
 	void arrowHead(int xA, int yA, int xB, int yB) {
@@ -424,64 +426,64 @@ public class Graphe{
 
 Frame box;
 JFrame frame;
-Onglets onglets;
+UIManager ui_manager;
 GrapheManager graphe_manager;
 
 Cursor hand_corsor = new Cursor(Cursor.HAND_CURSOR);
 Cursor normal_cursor = new Cursor(Cursor.DEFAULT_CURSOR);
 Cursor move_cursor = new Cursor(Cursor.MOVE_CURSOR);
 
+long curentMemoryUsed;
+
 int index_sommet_selected = -1;
 int index_sommet_hover = -1;
 int index_onglet_hover = -1;
+
+NumberFormat nf = NumberFormat.getInstance(new Locale("fr", "FR"));
 
 public void mouseReleased(){
 	index_sommet_selected = -1;
 }
 
-void setup() {
-	//this.frame.setVisible(false);
+void setup(){
 	surface.setSize(900,400);
 	surface.setResizable(true);
-	//surface.hideCursor();
 	frame = (JFrame) ((processing.awt.PSurfaceAWT.SmoothCanvas)this.getSurface().getNative()).getFrame();
 	frame.setTitle("Graphe Controller");
 
+	nf.setMaximumFractionDigits(2);
+
 	box = new Frame();
 
-	onglets = new Onglets();
+	ui_manager = new UIManager();
 
 	graphe_manager = new GrapheManager();
-	graphe_manager.newGraphe();
-	graphe_manager.newGraphe();
-	graphe_manager.newGraphe();
 	//Graphe graphe = saisie_graphe();
 	//afficher_matrice(adjacence(graphe));
-
-	
-
-	System.out.println(graphe_manager.getAmountOfGraphe());
-	
 }
 
 void draw(){
+
+	curentMemoryUsed = Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+
 	textSize(12);
 	background(40,41,35);
 
 	fill(255);
 	textAlign(RIGHT);
-
-
 	text("Réalisé par Gabriel Blanchot et Maxime Boissout", width - 5, height - 30);
 
-	textAlign(CENTER);
-	text((int)frameRate + " fps", 30, 20);
+
 	
 
-	onglets.draw();
-	graphe_manager.getCurentGraphe().draw();
-	
+	ui_manager.draw();
+	graphe_manager.drawCurentGraphe();
 
+	fill(255);
+	textAlign(LEFT);
+	text(nf.format(frameRate) + " fps", 20, 50);
+	text(nf.format(((curentMemoryUsed-startMemoryUsed)/1000000.0)) + " Mo", 20,70);
+	text(nf.format(((curentMemoryUsed/1000000.0))) + " Mo", 20,90);
 }
 
 public class GrapheManager{
@@ -524,16 +526,37 @@ public class GrapheManager{
 		}
 		return graphes.get(curent_graphe-1);
 	}
+
+	public void removeCurentGraphe(){
+		this.graphes.remove(this.curent_graphe);
+	}
+
+	public void removeGraphe(int i){
+		this.graphes.remove(i);
+	}
+
+	public void drawCurentGraphe(){
+		if (!(this.graphes.size() <= 0)) {
+			this.getCurentGraphe().draw();
+		}
+	}
 }
 
-public class Onglets {
+public class UIManager {
 
-	public Onglets(){
+	public UIManager(){
 
 	}
 
-
 	public void draw(){
+
+		int nombre_de_graphe = graphe_manager.getAmountOfGraphe();
+
+		if (nombre_de_graphe <= 0) {
+			box.grapheClickabke(false);
+		} else {
+			box.grapheClickabke(true);
+		}
 
 		int largeur_onglet = 150;
 
@@ -542,7 +565,7 @@ public class Onglets {
 		fill(24, 25, 21);
 		rect(0, 0, width, 35);
 
-		for (int i = 0; i < graphe_manager.getAmountOfGraphe(); i++) {
+		for (int i = 0; i < nombre_de_graphe; i++) {
 
 			if (graphe_manager.getNumberOfCurentGrahe()-1 == i) {
 				fill(40, 41, 35);
@@ -559,10 +582,10 @@ public class Onglets {
 			if (mouseY < 35 && mouseY > 0 && mouseX > 10 + i*largeur_onglet && mouseX < 10 + (i+1)*largeur_onglet) {
 				index_onglet_hover = 1;
 				frame.setCursor(hand_corsor);
+				if (mousePressed) {
+					graphe_manager.setCurentGraphe(i+1);
+				}
 			}
-
-
-
 		}
 
 		if (!(mouseY < 35 && mouseY > 0 && mouseX > 10 + 0*largeur_onglet && mouseX < 10 + (graphe_manager.getAmountOfGraphe())*largeur_onglet)) {
@@ -775,5 +798,13 @@ public class Frame extends JFrame implements ActionListener {
 			graphe_manager.newGraphe();
 		}
 		
+	}
+
+	public void grapheClickabke(boolean b){
+		action_ajouter_une_arete.setEnabled(b);
+		action_ajouter_un_sommet.setEnabled(b);
+		action_supprimer_une_arete.setEnabled(b);
+		action_supprimer_un_sommet.setEnabled(b);
+		action_modifier_une_arete.setEnabled(b);
 	}
 }
